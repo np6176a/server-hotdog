@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+  require('dotenv').config()
 }
 
 /*
@@ -22,8 +22,8 @@ const upload = multer({
     s3: newS3,
     bucket: process.env.BUCKET_NAME,
     acl: 'public-read',
-    metadata(req, file, cb) {
-      cb(null, {fieldName: file.fieldname});
+    metadata (req, file, cb) {
+      cb(null, { fieldName: file.fieldname })
     },
     key (req, file, cb) {
       cb(null, Date.now().toString() + '.jpg')
@@ -38,7 +38,6 @@ const rekognition = new aws.Rekognition({
   region: 'us-east-1'
 })
 
-
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
@@ -52,27 +51,27 @@ app.post('/upload', upload.single('photo'), (req, res, next) => {
 })
 
 const bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.post('/rekognition', (req, res, next) => {
-  const params = {
-    Image: {
-      S3Object: {
-        Bucket: process.env.BUCKET_NAME,
-        Name: req.body.key
-      }
-    },
-    MaxLabels: 2,
-    MinConfidence: 95,
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+app.post('/rekognition', async (req, res, next) => {
+  try {
+    const params = {
+      Image: {
+        S3Object: {
+          Bucket: process.env.BUCKET_NAME,
+          Name: req.body.key
+        }
+      },
+      MaxLabels: 20,
+      MinConfidence: 90,
+    }
+    const data = await rekognition.detectLabels(params).promise()
+    const names = data.Labels.map(obj => obj.Name)
+    res.send(names)
+  } catch (e) {
+    console.log(e, e.stack)
   }
-  rekognition.detectLabels(params,((err, data) => {
-    if (err) {
-      console.log(err, err.stack)
-    }
-    else {
-      console.log(data)
-    }
-  }))
+
 })
 
 app.listen(port, (err) => {
