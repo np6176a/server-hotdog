@@ -18,7 +18,7 @@
 
 # Overview
 
-The Hot Dog Checker is a react native app using [Amazon Image Rekognition](https://aws.amazon.com/rekognition/) to
+The Hot Dog Checker is a React Native app using [Amazon Image Rekognition](https://aws.amazon.com/rekognition/) to
 check if the image is of a Hot Dog. This repo holds the Node server. The Front End 
 can be found [here](https://github.com/np6176a/client-hotdog). Please refer to the Front End repo for more
 detailed information.
