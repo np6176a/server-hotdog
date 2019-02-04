@@ -30,16 +30,15 @@ To view the project as a mobile app you will need to download Expo Client on you
 You can view in browser using the default Appetize.io setup in Expo or request a link in the Expo project page. 
 
 # Approach
-The following will focus on the Front End code.
 
 ## Build Process
 
-The build process is fully handled by the [zeit.cp](https://zeit.co/) default configuration for node, which works great for this use case.
+The build process is fully handled by the [zeit.co](https://zeit.co/) default configuration for node, which works great for this use case.
 
 ## Deploy Process
 
 The project currently is published on [expo.io](https://expo.io/@findniya/hotdog). This is done manually using the expo IDE.
-The backend is deployed on [zeit.cp](https://zeit.co/).
+The backend is deployed on [zeit.co](https://zeit.co/).
 
 
 ## API Information
