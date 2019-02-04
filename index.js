@@ -1,22 +1,29 @@
+/**
+ * The .env configuration
+ */
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
-/*
- Requirements for Uploading Images
- */
 const aws = require('aws-sdk')
 const multer = require('multer')
 const multerS3 = require('multer-s3')
 
-//new aws s3 instance configs
+/**
+ * Setting up S3 access
+ * @type {S3}
+ */
 const newS3 = new aws.S3({
   accessKeyId: process.env.KEY_ID,
   secretAccessKey: process.env.SECRET_KEY,
   region: 'us-east-1'
 })
 
-//Init multer with S3 configs
+/**
+ * Using Multer with S3 to allow multipart uploads
+ * @callback upload
+ * @param{S3, ImageFile}
+ */
 const upload = multer({
   storage: multerS3({
     s3: newS3,
@@ -31,41 +38,65 @@ const upload = multer({
   })
 })
 
-//AWS Rekognition
+/**
+ * Setting up AWS Rekognition access
+ * @type {Rekognition}
+ */
 const rekognition = new aws.Rekognition({
   accessKeyId: process.env.KEY_ID,
   secretAccessKey: process.env.SECRET_KEY,
   region: 'us-east-1'
 })
+/**
+ * The params for Aws Rekognition
+ * @param req
+ * @returns {{MinConfidence: number, MaxLabels: number, Image: {S3Object: {Bucket: *, Name: *}}}}
+ */
+const params = (req) => {
+  return {
+    Image: {
+      S3Object: {
+        Bucket: process.env.BUCKET_NAME,
+        Name: req.body.key
+      }
+    },
+    MaxLabels: 20,
+    MinConfidence: 90,
+  }
+}
 
+/*------------------------------------------------*/
+/**
+ * Express Setting and Routes
+ * @type {createApplication|createApplication}
+ */
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
 
-app.get('/', (req, res) => {
-  res.send(`PORT ${port}`)
-})
-
+/**
+ * Route using Multer
+ * @type express route
+ */
 app.post('/upload', upload.single('photo'), (req, res, next) => {
   res.json(req.file)
 })
 
+/**
+ * Body Parser for Route not using Multer
+ * @type {Parsers|*}
+ */
 const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+
+/**
+ * Route for AWS Rekognition
+ * #type express route
+ */
 app.post('/rekognition', async (req, res, next) => {
   try {
-    const params = {
-      Image: {
-        S3Object: {
-          Bucket: process.env.BUCKET_NAME,
-          Name: req.body.key
-        }
-      },
-      MaxLabels: 20,
-      MinConfidence: 90,
-    }
-    const data = await rekognition.detectLabels(params).promise()
+    const data = await rekognition.detectLabels(params(req)).promise()
     const names = data.Labels.map(obj => obj.Name)
     res.send(names)
   } catch (e) {
