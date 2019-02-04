@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Niya Panamdanam",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "aws-sdk": "^2.395.0",
     "body-parser": "^1.18.3",
