@@ -1,4 +1,12 @@
 /**
+ * Express Setting and Routes
+ * @type {createApplication|createApplication}
+ */
+const express = require('express')
+const app = express()
+const port = process.env.PORT || 3000
+
+/**
  * The .env configuration
  */
 if (process.env.NODE_ENV !== 'production') {
@@ -13,7 +21,7 @@ const multerS3 = require('multer-s3')
  * Setting up S3 access
  * @type {S3}
  */
-const newS3 = new aws.S3({
+const S3_CLIENT = new aws.S3({
   accessKeyId: process.env.KEY_ID,
   secretAccessKey: process.env.SECRET_KEY,
   region: 'us-east-1'
@@ -24,9 +32,9 @@ const newS3 = new aws.S3({
  * @callback upload
  * @param{S3, ImageFile}
  */
-const upload = multer({
+const MULTER_UPLOADER = multer({
   storage: multerS3({
-    s3: newS3,
+    s3: S3_CLIENT,
     bucket: process.env.BUCKET_NAME,
     acl: 'public-read',
     metadata (req, file, cb) {
@@ -66,19 +74,12 @@ const params = (req) => {
 }
 
 /*------------------------------------------------*/
-/**
- * Express Setting and Routes
- * @type {createApplication|createApplication}
- */
-const express = require('express')
-const app = express()
-const port = process.env.PORT || 3000
 
 /**
  * Route using Multer
  * @type express route
  */
-app.post('/upload', upload.single('photo'), (req, res, next) => {
+app.post('/upload', MULTER_UPLOADER.single('photo'), (req, res, next) => {
   res.json(req.file)
 })
 
@@ -102,7 +103,6 @@ app.post('/rekognition', async (req, res, next) => {
   } catch (e) {
     console.log(e, e.stack)
   }
-
 })
 
 app.listen(port, (err) => {
