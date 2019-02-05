@@ -4,6 +4,10 @@
  */
 const express = require('express')
 const app = express()
+const aws = require('aws-sdk')
+const multer = require('multer')
+const multerS3 = require('multer-s3')
+const bodyParser = require('body-parser')
 const port = process.env.PORT || 3000
 
 /**
@@ -12,10 +16,6 @@ const port = process.env.PORT || 3000
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
-
-const aws = require('aws-sdk')
-const multer = require('multer')
-const multerS3 = require('multer-s3')
 
 /**
  * Setting up S3 access
@@ -73,8 +73,6 @@ const params = (req) => {
   }
 }
 
-/*------------------------------------------------*/
-
 /**
  * Route using Multer
  * @type express route
@@ -87,7 +85,6 @@ app.post('/upload', MULTER_UPLOADER.single('photo'), (req, res, next) => {
  * Body Parser for Route not using Multer
  * @type {Parsers|*}
  */
-const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
